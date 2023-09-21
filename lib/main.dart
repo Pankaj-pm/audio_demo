@@ -1,5 +1,7 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
+import 'package:audio_demo/video_player.dart';
 import 'package:flutter/material.dart';
+import 'package:video_player/video_player.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +38,11 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _assetsAudioPlayer = AssetsAudioPlayer.newPlayer();
+    _assetsAudioPlayer.open(Playlist(audios: [
+      Audio("assets/chaleya.mp3"),
+      Audio.network(
+          "https://files.freemusicarchive.org/storage-freemusicarchive-org/music/Music_for_Video/springtide/Sounds_strange_weird_but_unmistakably_romantic_Vol1/springtide_-_03_-_We_Are_Heading_to_the_East.mp3")
+    ]),autoStart: false);
   }
 
   @override
@@ -56,17 +63,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     snapshot.data?.audio.audio.metas.title??"",
                   );
                 }),
-            StreamBuilder<bool>(
-                stream: _assetsAudioPlayer.isPlaying,
-                builder: (context, snapshot) {
-                  return IconButton(
-                      onPressed: () {
-                        _assetsAudioPlayer.playOrPause();
-                      },
-                      icon: Icon((snapshot.data ?? false)
-                          ? Icons.pause
-                          : Icons.play_arrow));
-                }),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                StreamBuilder<bool>(
+                    stream: _assetsAudioPlayer.isPlaying,
+                    builder: (context, snapshot) {
+                      return IconButton(
+                          onPressed: () {
+                            _assetsAudioPlayer.playOrPause();
+                          },
+                          icon: Icon((snapshot.data ?? false)
+                              ? Icons.pause
+                              : Icons.play_arrow));
+                    }),
+                IconButton(onPressed: () {
+                  _assetsAudioPlayer.next();
+                }, icon: Icon(Icons.skip_next))
+              ],
+            ),
             InkWell(
               onTap: () {
                 _assetsAudioPlayer.open(Audio("assets/chaleya.mp3"),
@@ -129,7 +144,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Text("We_Are_Heading_to_the_East"),
-                ))
+                )),
+            IconButton(onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => VideoPlayerScreen(),));
+            }, icon: Icon(Icons.near_me))
           ],
         ),
       ),
